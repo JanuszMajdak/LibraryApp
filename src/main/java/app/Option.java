@@ -1,5 +1,7 @@
 package app;
 
+import exception.NoSuchOptionException;
+
 public enum Option {
 
     EXIT(0, "Exit from programme"),
@@ -12,9 +14,9 @@ public enum Option {
     private String description;
 
 
-    Option(int value, String description) {
+    Option(int value, String desc) {
         this.value = value;
-        this.description = description;
+        this.description = desc;
     }
 
 
@@ -33,8 +35,13 @@ public enum Option {
 
 //convert int for Enum Option
 
-    static Option createFromInt(int option) {
-        return Option.values()[option];
+    static Option createFromInt(int option) throws NoSuchOptionException {
+
+        try {
+            return Option.values()[option];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new NoSuchOptionException("Lack of option about id= " + option);
+        }
     }
 
 }
