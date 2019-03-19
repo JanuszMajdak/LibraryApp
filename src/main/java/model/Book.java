@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public class Book extends Publication {
 
+    public static final String TYPE = "Book";
+
     private String author;
     private int pagesNumber;
     private String isbn;
@@ -40,5 +42,16 @@ public class Book extends Publication {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), author, pagesNumber, isbn);
+    }
+
+    @Override
+    public String toCsv() {
+        return (TYPE+";")+
+                getTitle()+";"+
+                getPublisher()+";"+
+                getYear()+";"+
+                author+";"+
+                pagesNumber+";"+
+                isbn+ "";
     }
 }

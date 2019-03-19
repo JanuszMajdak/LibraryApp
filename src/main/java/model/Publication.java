@@ -67,4 +67,8 @@ public abstract class Publication implements Serializable {
     public int hashCode() {
         return Objects.hash(year, title, publisher);
     }
+
+
+    public abstract String toCsv();
+
 }

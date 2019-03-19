@@ -21,11 +21,13 @@ public class FileManagerBuilder {
         printer.printLine("Choose the format of data");
         FileType fileType = getFileType();
 
-        switch (fileType){
+        switch (fileType) {
+            case CSV:
+                return new CsvFileManager();
             case SERIAL:
                 return new SerializableFileManager();
-                default:
-                    throw new NoSuchFileTypeException("Not correct (handled) type of data");
+            default:
+                throw new NoSuchFileTypeException("Not correct (handled) type of data");
         }
 
     }
@@ -38,12 +40,12 @@ public class FileManagerBuilder {
         do {
             printTypes();
             String type = reader.getString().toUpperCase();
-try {
-    result = FileType.valueOf(type);
-    typeOk = true;
-} catch (IllegalArgumentException e){
-    printer.printLine("Not correct (handled) type of data, please choose once again.");
-}
+            try {
+                result = FileType.valueOf(type);
+                typeOk = true;
+            } catch (IllegalArgumentException e) {
+                printer.printLine("Not correct (handled) type of data, please choose once again.");
+            }
 
         } while (!typeOk);
         return result;

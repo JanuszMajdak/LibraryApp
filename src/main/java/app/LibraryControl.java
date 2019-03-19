@@ -3,6 +3,7 @@ package app;
 import data.Library;
 import exception.DataExportException;
 import exception.DataImportException;
+import exception.InvalidDataException;
 import exception.NoSuchOptionException;
 import io.ConsolePrinter;
 import io.DataReader;
@@ -29,7 +30,7 @@ public class LibraryControl {
         try {
             library = fileManager.importData();
             printer.printLine("Imported data from file");
-        } catch (DataImportException e) {
+        } catch (DataImportException |InvalidDataException e) {
             printer.printLine(e.getMessage());
             printer.printLine("Initiated the new base");
             library = new Library();
@@ -96,7 +97,7 @@ public class LibraryControl {
 
         try {
             Book book = dataReader.readAndCreateBook();
-            library.addBook(book);
+            library.addPublication(book);
         } catch (InputMismatchException e) {
             printer.printLine("It was not possible to create a book, not correct data were put.");
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -113,7 +114,7 @@ public class LibraryControl {
 
         try {
             Magazine magazine = dataReader.readAndCreateMagazine();
-            library.addMagazine(magazine);
+            library.addPublication(magazine);
         } catch (InputMismatchException e) {
             printer.printLine("It was not possible to create a magazine, not correct data were put");
         } catch (ArrayIndexOutOfBoundsException e) {
