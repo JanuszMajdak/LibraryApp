@@ -1,9 +1,14 @@
 package app;
 
 import data.Library;
+import exception.DataExportException;
+import exception.DataImportException;
+import exception.InvalidDataException;
 import exception.NoSuchOptionException;
 import io.ConsolePrinter;
 import io.DataReader;
+import io.file.FileManager;
+import io.file.FileManagerBuilder;
 import model.Book;
 import model.Magazine;
 import model.Publication;
@@ -14,8 +19,23 @@ public class LibraryControl {
 
     private ConsolePrinter printer = new ConsolePrinter();
     private DataReader dataReader = new DataReader(printer);
+    private FileManager fileManager;
 
     private Library library = new Library();
+
+
+    LibraryControl() {
+        fileManager = new FileManagerBuilder(printer, dataReader).build();
+
+        try {
+            library = fileManager.importData();
+            printer.printLine("Imported data from file");
+        } catch (DataImportException |InvalidDataException e) {
+            printer.printLine(e.getMessage());
+            printer.printLine("Initiated the new base");
+            library = new Library();
+        }
+    }
 
 
     public void controlLoop() {
@@ -41,7 +61,7 @@ public class LibraryControl {
                     exit();
                     break;
                 default:
-                    System.out.println("Please choose numbers: 0-4");
+                    System.out.println("The choosen option not exists. Please choose numbers: 0-4");
             }
         } while (option != Option.EXIT);
 
@@ -77,7 +97,7 @@ public class LibraryControl {
 
         try {
             Book book = dataReader.readAndCreateBook();
-            library.addBook(book);
+            library.addPublication(book);
         } catch (InputMismatchException e) {
             printer.printLine("It was not possible to create a book, not correct data were put.");
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -94,7 +114,7 @@ public class LibraryControl {
 
         try {
             Magazine magazine = dataReader.readAndCreateMagazine();
-            library.addMagazine(magazine);
+            library.addPublication(magazine);
         } catch (InputMismatchException e) {
             printer.printLine("It was not possible to create a magazine, not correct data were put");
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -111,8 +131,53 @@ public class LibraryControl {
 
 
     private void exit() {
-        printer.printLine("I am closing the program. PA PA PA:)");
+
+        try {
+            fileManager.exportData(library);
+            printer.printLine("Export data was finished with success");
+        } catch (DataExportException e) {
+            printer.printLine(e.getMessage());
+
+        }
         dataReader.close();
+        printer.printLine("I am closing the program. PA PA PA:)");
+
+
+    }
+
+    private enum Option {
+
+        EXIT(0, "Exit from programme"),
+        ADD_BOOK(1, "Adding a book"),
+        ADD_MAGAZINE(2, "Adding magazine/newspaper"),
+        PRINT_BOOKS(3, "Displaying the available books"),
+        PRINT_MAGAZINES(4, "Displaying the available magazines/newspapers");
+
+        private int value;
+        private String description;
+
+
+        Option(int value, String desc) {
+            this.value = value;
+            this.description = desc;
+        }
+
+
+        @Override
+        public String toString() {
+            return value + " - " + description;
+        }
+
+//convert int for Enum Option
+
+        static Option createFromInt(int option) throws NoSuchOptionException {
+
+            try {
+                return Option.values()[option];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new NoSuchOptionException("Lack of option about id= " + option);
+            }
+        }
 
     }
 }

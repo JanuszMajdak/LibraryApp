@@ -34,13 +34,13 @@ public class DataReader {
         printer.printLine("Title:");
         String title = scanner.nextLine();
 
-       printer.printLine("Author:");
+        printer.printLine("Author:");
         String author = scanner.nextLine();
 
         printer.printLine("Release date:");
         int releaseDate = getInt();
 
-      printer.printLine("Pages number:");
+        printer.printLine("Pages number:");
         int pagesNumber = getInt();
 
         printer.printLine("The publisher name:");
@@ -63,16 +63,21 @@ public class DataReader {
         printer.printLine("Language:");
         String language = scanner.nextLine();
 
-       printer.printLine("Release year:");
+        printer.printLine("Release year:");
         int year = getInt();
 
-       printer.printLine("Release month:");
+        printer.printLine("Release month:");
         int month = getInt();
 
         printer.printLine("Release day:");
         int day = getInt();
 
         return new Magazine(title, publisher, language, year, month, day);
+    }
+
+
+    public String getString() {
+        return scanner.nextLine();
     }
 }
 
