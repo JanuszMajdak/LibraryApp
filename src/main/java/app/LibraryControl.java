@@ -12,7 +12,11 @@ import io.file.FileManagerBuilder;
 import model.Book;
 import model.Magazine;
 import model.Publication;
+import model.comparator.AlphabeticalTitleComparator;
+import model.comparator.DataComparator;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.InputMismatchException;
 
 public class LibraryControl {
@@ -21,7 +25,7 @@ public class LibraryControl {
     private DataReader dataReader = new DataReader(printer);
     private FileManager fileManager;
 
-    private Library library = new Library();
+    private Library library;
 
 
     LibraryControl() {
@@ -113,7 +117,9 @@ public class LibraryControl {
     }
 
     private void printBooks() {
+
         Publication[] publications = library.getPublications();
+        Arrays.sort(publications, new AlphabeticalTitleComparator());
         printer.printBooks(publications);
     }
 
@@ -132,6 +138,7 @@ public class LibraryControl {
 
     private void printMagazines() {
         Publication[] publications = library.getPublications();
+        Arrays.sort(publications, new AlphabeticalTitleComparator());
         printer.printMagazines(publications);
 
     }
@@ -188,7 +195,7 @@ public class LibraryControl {
         PRINT_BOOKS(3, "Displaying the available books"),
         PRINT_MAGAZINES(4, "Displaying the available magazines/newspapers"),
         DELETE_BOOK(5, "Delete book"),
-        DELETE_MAGAZINE(6,"Delete magazine");
+        DELETE_MAGAZINE(6, "Delete magazine");
 
         private int value;
         private String description;
