@@ -1,57 +1,66 @@
 package data;
 
 
+import exception.PublicationAlreadyExistsException;
+import exception.UserAlreadyExistsException;
+import model.LibraryUser;
 import model.Publication;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.*;
 
 public class Library implements Serializable {
 
-    private static final int INITIAL_CAPACITY = 1;
-    private int publicationsNumber;
-    private Publication[] publications = new Publication[INITIAL_CAPACITY];
+
+    private Map<String, Publication> publications = new HashMap<>();
+    private Map<String, LibraryUser> users = new HashMap<>();
+
+    public Map<String, Publication> getPublications() {
+        return publications;
+    }
+
+    public Map<String, LibraryUser> getUsers() {
+        return users;
+    }
+
+    public Collection<Publication> getSortedPublications(Comparator<Publication> comparator) {
+        ArrayList<Publication> list = new ArrayList<>(this.publications.values());
+        list.sort(comparator);
+        return list;
+    }
+
+    public Collection<LibraryUser> getSortedUsers(Comparator<LibraryUser> comparator) {
+        ArrayList<LibraryUser> list = new ArrayList<>(this.users.values());
+        list.sort(comparator);
+        return list;
+    }
 
 
-    public Publication[] getPublications() {
-        Publication[] result = new Publication[publicationsNumber];
-        for (int i = 0; i < publicationsNumber; i++) {
-            result[i] = publications[i];
-        }
-        return result;
+    public void addUser(LibraryUser user) {
+        if (users.containsKey(user.getPesel()))
+            throw new UserAlreadyExistsException("The user about the indicated pesel already exists " + user.getPesel());
+        users.put(user.getPesel(), user);
+
     }
 
 
     public void addPublication(Publication publication) {
-        if (publicationsNumber == publications.length) {
-            publications = Arrays.copyOf(publications, publications.length * 2);
+        if (publications.containsKey(publication.getTitle())) {
+            throw new PublicationAlreadyExistsException("Publication about indicated title exists " + publication.getTitle());
         }
-        publications[publicationsNumber] = publication;
-        publicationsNumber++;
+        publications.put(publication.getTitle(), publication);
     }
 
 
     public boolean removePublication(Publication publication) {
 
-        final int NOT_FOUND = -1;
-        int found = NOT_FOUND;
+        if (publications.containsValue(publication)) {
+            publications.remove(publication.getTitle());
+            return true;
 
-        int i = 0;
-        while (i < publications.length && found == NOT_FOUND) {
-            if (publication.equals(publications[i])) {
-                found = i;
-
-            } else {
-                i++;
-            }
+        } else {
+            return false;
         }
-
-        if (found != NOT_FOUND) {
-            System.arraycopy(publications, found + 1, publications, found, publications.length - found - 1);
-        }
-        return found != NOT_FOUND;
-
     }
 
 }
-
