@@ -1,25 +1,27 @@
 package model;
 
 import java.io.Serializable;
+import java.time.Year;
 import java.util.Objects;
 
 public abstract class Publication implements Serializable, CsvConvertible {
-    private int year;
+    private Year year;
     private String title;
     private String publisher;
 
 
-    public Publication(int year, String title, String publisher) {
-        this.year = year;
+    public Publication( String title, String publisher, int year) {
+
         this.title = title;
         this.publisher = publisher;
+        this.year = Year.of(year);
     }
 
-    public int getYear() {
+    public Year getYear() {
         return year;
     }
 
-    void setYear(int year) {
+    public void setYear(Year year) {
         this.year = year;
     }
 
@@ -27,20 +29,16 @@ public abstract class Publication implements Serializable, CsvConvertible {
         return title;
     }
 
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    String getPublisher() {
+    public String getPublisher() {
         return publisher;
     }
 
-    void setPublisher(String publisher) {
+    public void setPublisher(String publisher) {
         this.publisher = publisher;
-    }
-
-    public void printInfo() {
-
     }
 
     @Override
@@ -52,22 +50,20 @@ public abstract class Publication implements Serializable, CsvConvertible {
                 '}';
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Publication)) return false;
         Publication that = (Publication) o;
-        return year == that.year &&
-                title.equals(that.title) &&
-                publisher.equals(that.publisher);
+        return getYear().equals(that.getYear()) &&
+                getTitle().equals(that.getTitle()) &&
+                getPublisher().equals(that.getPublisher());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(year, title, publisher);
+        return Objects.hash(getYear(), getTitle(), getPublisher());
     }
-
 
     public int compareTo(Publication p) {
         return title.compareToIgnoreCase(p.title);

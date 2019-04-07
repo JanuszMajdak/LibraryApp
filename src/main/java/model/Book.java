@@ -13,7 +13,7 @@ public class Book extends Publication {
 
     public Book(String title, String author, int year, int pagesNumber, String publisher, String isbn) {
 
-        super(year, title, publisher);
+        super(title,publisher,year);
         this.author = author;
         this.pagesNumber = pagesNumber;
         this.isbn = isbn;

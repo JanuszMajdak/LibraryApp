@@ -6,10 +6,7 @@ import io.ConsolePrinter;
 import io.DataReader;
 import io.file.FileManager;
 import io.file.FileManagerBuilder;
-import model.Book;
-import model.LibraryUser;
-import model.Magazine;
-import model.comparator.AlphabeticalTitleComparator;
+import model.*;
 
 import java.util.Comparator;
 import java.util.InputMismatchException;
@@ -68,6 +65,9 @@ public class LibraryControl {
                 case PRINT_USERS:
                     printUsers();
                     break;
+                case FIND_BOOK:
+                    findBook();
+                    break;
                 case EXIT:
                     exit();
                     break;
@@ -117,7 +117,7 @@ public class LibraryControl {
     }
 
     private void printBooks() {
-        printer.printBooks(library.getSortedPublications(new AlphabeticalTitleComparator()));
+        printer.printBooks(library.getSortedPublications(Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)));
     }
 
     private void addMagazine() {
@@ -134,7 +134,7 @@ public class LibraryControl {
 
 
     private void printMagazines() {
-        printer.printMagazines(library.getSortedPublications(new AlphabeticalTitleComparator()));
+        printer.printMagazines(library.getSortedPublications(Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)));
 
     }
 
@@ -148,16 +148,19 @@ public class LibraryControl {
     }
 
     private void printUsers() {
-        printer.printUsers(library.getSortedUsers(new Comparator<LibraryUser>() {
-            @Override
-            public int compare(LibraryUser o1, LibraryUser o2) {
-                return o1.getLastName().compareToIgnoreCase(o2.getLastName());
-            }
-        }));
+        printer.printUsers(library.getSortedUsers(Comparator.comparing(User::getLastName, String.CASE_INSENSITIVE_ORDER)));
+    }
+
+    private void findBook() {
+        printer.printLine("Give the title of publication:");
+        String title = dataReader.getString();
+        String notFoundMessage = "Lack of publication about this title";
+        library.findPublicationByTitle(title)
+                .map(Publication::toString)
+                .ifPresentOrElse(System.out::println, () -> System.out.println(notFoundMessage));
     }
 
     private void deleteMagazine() {
-
         try {
             Magazine magazine = dataReader.readAndCreateMagazine();
             if (library.removePublication(magazine)) {
@@ -205,7 +208,8 @@ public class LibraryControl {
         DELETE_BOOK(5, "Delete book"),
         DELETE_MAGAZINE(6, "Delete magazine"),
         ADD_USER(7, "Add user"),
-        PRINT_USERS(8, "Print users");
+        PRINT_USERS(8, "Print users"),
+        FIND_BOOK(9, "Find the book");
 
 
         private int value;
