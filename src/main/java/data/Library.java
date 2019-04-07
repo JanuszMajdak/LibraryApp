@@ -1,49 +1,71 @@
 package data;
 
-import model.Book;
-import model.Magazine;
+
+import exception.PublicationAlreadyExistsException;
+import exception.UserAlreadyExistsException;
+import model.LibraryUser;
 import model.Publication;
 
 import java.io.Serializable;
+import java.util.*;
 
 public class Library implements Serializable {
 
-    private static final int MAX_PUBLICATIONS = 2000;
-    private int publicationsNumber;
-    private Publication[] publications = new Publication[MAX_PUBLICATIONS];
+
+    private Map<String, Publication> publications = new HashMap<>();
+    private Map<String, LibraryUser> users = new HashMap<>();
 
 
-    public Publication[] getPublications() {
-        Publication[] result = new Publication[publicationsNumber];
-        for (int i = 0; i < publicationsNumber; i++) {
-            result[i] = publications[i];
-        }
-        return result;
+    public Optional<Publication> findPublicationByTitle(String title) {
+        return Optional.ofNullable(publications.get(title));
+    }
+
+    public Map<String, Publication> getPublications() {
+        return publications;
+    }
+
+    public Map<String, LibraryUser> getUsers() {
+        return users;
+    }
+
+    public Collection<Publication> getSortedPublications(Comparator<Publication> comparator) {
+        ArrayList<Publication> list = new ArrayList<>(this.publications.values());
+        list.sort(comparator);
+        return list;
+    }
+
+    public Collection<LibraryUser> getSortedUsers(Comparator<LibraryUser> comparator) {
+        ArrayList<LibraryUser> list = new ArrayList<>(this.users.values());
+        list.sort(comparator);
+        return list;
     }
 
 
-/*
-    public void addBook(Book book) {
-        addPublication(book);
-    }
-
-
-    public void addMagazine(Magazine magazine) {
-        addPublication(magazine);
+    public void addUser(LibraryUser user) {
+        if (users.containsKey(user.getPesel()))
+            throw new UserAlreadyExistsException("The user about the indicated pesel already exists " + user.getPesel());
+        users.put(user.getPesel(), user);
 
     }
-*/
 
 
     public void addPublication(Publication publication) {
-        if (publicationsNumber >= MAX_PUBLICATIONS) {
-            throw new ArrayIndexOutOfBoundsException("Max publications exceeded " + MAX_PUBLICATIONS);
+        if (publications.containsKey(publication.getTitle())) {
+            throw new PublicationAlreadyExistsException("Publication about indicated title exists " + publication.getTitle());
         }
-        publications[publicationsNumber] = publication;
-        publicationsNumber++;
+        publications.put(publication.getTitle(), publication);
+    }
+
+
+    public boolean removePublication(Publication publication) {
+
+        if (publications.containsValue(publication)) {
+            publications.remove(publication.getTitle());
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
 }
-
-
-

@@ -1,18 +1,14 @@
 package app;
 
 import data.Library;
-import exception.DataExportException;
-import exception.DataImportException;
-import exception.InvalidDataException;
-import exception.NoSuchOptionException;
+import exception.*;
 import io.ConsolePrinter;
 import io.DataReader;
 import io.file.FileManager;
 import io.file.FileManagerBuilder;
-import model.Book;
-import model.Magazine;
-import model.Publication;
+import model.*;
 
+import java.util.Comparator;
 import java.util.InputMismatchException;
 
 public class LibraryControl {
@@ -21,7 +17,7 @@ public class LibraryControl {
     private DataReader dataReader = new DataReader(printer);
     private FileManager fileManager;
 
-    private Library library = new Library();
+    private Library library;
 
 
     LibraryControl() {
@@ -30,7 +26,7 @@ public class LibraryControl {
         try {
             library = fileManager.importData();
             printer.printLine("Imported data from file");
-        } catch (DataImportException |InvalidDataException e) {
+        } catch (DataImportException | InvalidDataException e) {
             printer.printLine(e.getMessage());
             printer.printLine("Initiated the new base");
             library = new Library();
@@ -56,6 +52,21 @@ public class LibraryControl {
                     break;
                 case PRINT_MAGAZINES:
                     printMagazines();
+                    break;
+                case DELETE_BOOK:
+                    deleteBook();
+                    break;
+                case DELETE_MAGAZINE:
+                    deleteMagazine();
+                    break;
+                case ADD_USER:
+                    addUser();
+                    break;
+                case PRINT_USERS:
+                    printUsers();
+                    break;
+                case FIND_BOOK:
+                    findBook();
                     break;
                 case EXIT:
                     exit();
@@ -106,8 +117,7 @@ public class LibraryControl {
     }
 
     private void printBooks() {
-        Publication[] publications = library.getPublications();
-        printer.printBooks(publications);
+        printer.printBooks(library.getSortedPublications(Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)));
     }
 
     private void addMagazine() {
@@ -124,9 +134,55 @@ public class LibraryControl {
 
 
     private void printMagazines() {
-        Publication[] publications = library.getPublications();
-        printer.printMagazines(publications);
+        printer.printMagazines(library.getSortedPublications(Comparator.comparing(Publication::getTitle, String.CASE_INSENSITIVE_ORDER)));
 
+    }
+
+    private void addUser() {
+        LibraryUser libraryUser = dataReader.createLibraryUser();
+        try {
+            library.addUser(libraryUser);
+        } catch (UserAlreadyExistsException e) {
+            printer.printLine(e.getMessage());
+        }
+    }
+
+    private void printUsers() {
+        printer.printUsers(library.getSortedUsers(Comparator.comparing(User::getLastName, String.CASE_INSENSITIVE_ORDER)));
+    }
+
+    private void findBook() {
+        printer.printLine("Give the title of publication:");
+        String title = dataReader.getString();
+        String notFoundMessage = "Lack of publication about this title";
+        library.findPublicationByTitle(title)
+                .map(Publication::toString)
+                .ifPresentOrElse(System.out::println, () -> System.out.println(notFoundMessage));
+    }
+
+    private void deleteMagazine() {
+        try {
+            Magazine magazine = dataReader.readAndCreateMagazine();
+            if (library.removePublication(magazine)) {
+                printer.printLine("THe magazine was deleted");
+            } else
+                printer.printLine("There is lack of the magazine required to be deleted.");
+        } catch (InputMismatchException e) {
+            printer.printLine("There was not possible to create a magazine, not correct data.");
+        }
+    }
+
+    private void deleteBook() {
+        try {
+            Book book = dataReader.readAndCreateBook();
+            if (library.removePublication(book)) {
+                printer.printLine("The book was deleted.");
+            } else {
+                printer.printLine("There is lack of the book required to be deleted");
+            }
+        } catch (InputMismatchException e) {
+            printer.printLine("There was not possible to create a book, not correct data.");
+        }
     }
 
 
@@ -137,12 +193,9 @@ public class LibraryControl {
             printer.printLine("Export data was finished with success");
         } catch (DataExportException e) {
             printer.printLine(e.getMessage());
-
         }
         dataReader.close();
         printer.printLine("I am closing the program. PA PA PA:)");
-
-
     }
 
     private enum Option {
@@ -151,7 +204,13 @@ public class LibraryControl {
         ADD_BOOK(1, "Adding a book"),
         ADD_MAGAZINE(2, "Adding magazine/newspaper"),
         PRINT_BOOKS(3, "Displaying the available books"),
-        PRINT_MAGAZINES(4, "Displaying the available magazines/newspapers");
+        PRINT_MAGAZINES(4, "Displaying the available magazines/newspapers"),
+        DELETE_BOOK(5, "Delete book"),
+        DELETE_MAGAZINE(6, "Delete magazine"),
+        ADD_USER(7, "Add user"),
+        PRINT_USERS(8, "Print users"),
+        FIND_BOOK(9, "Find the book");
+
 
         private int value;
         private String description;

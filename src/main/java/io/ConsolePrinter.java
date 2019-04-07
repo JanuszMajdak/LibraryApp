@@ -1,38 +1,39 @@
 package io;
 
-import model.Book;
-import model.Magazine;
-import model.Publication;
+
+import model.*;
+
+import java.util.Collection;
 
 public class ConsolePrinter {
 
-    public void printBooks(Publication[] publications) {
-        int counter = 0;
+    public void printBooks(Collection<Publication> publications) {
+        long count = publications.stream()
+                .filter(p -> p instanceof Book)
+                .map(Publication::toString)
+                .peek(this::printLine)
+                .count();
 
-        for (Publication publication : publications) {
-            if (publication instanceof Book) {
-                printLine(publication.toString());
-                counter++;
-            }
-        }
-
-        if (counter == 0) {
+        if (count == 0) {
             System.out.println("There aren't any books in the library.");
         }
     }
 
-    public void printMagazines(Publication[] publications) {
-        int counter = 0;
-        for (Publication publication : publications) {
-            if (publication instanceof Magazine) {
-                printLine(publication.toString());
-                counter++;
-
-            }
-        }
-        if (counter == 0) {
+    public void printMagazines(Collection<Publication> publications) {
+        long count = publications.stream()
+                .filter(p -> p instanceof Magazine)
+                .map(Publication::toString)
+                .peek(this::printLine)
+                .count();
+        if (count == 0) {
             printLine("There aren't any magazines in the library.");
         }
+    }
+
+    public void printUsers(Collection<LibraryUser> users) {
+        users.stream()
+                .map(User::toString)
+                .forEach(this::printLine);
 
     }
 
